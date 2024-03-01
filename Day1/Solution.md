@@ -24,80 +24,74 @@ For pairs of brands in the same year:
 - If `custom1 = custom3` and `custom2 = custom4`, keep only one pair.
 - If `custom1 != custom3` OR `custom2 != custom4`, keep both pairs.
 - For brands that do not have pairs in the same year, keep those rows as well.
-
+---
 ### Approach to Solve:
 
 1. **CTE with Row Numbers:**
    - Create a Common Table Expression (CTE) to assign row numbers partitioned by `brand1`, `brand2`, and `year`.
-   - Use `ROW_NUMBER()` function to generate row numbers for both `brand1` and `brand2`.
+   - Use `ROW_NUMBER()` function to generate row numbers for each partition.
 
 2. **Selecting Rows:**
-   - Select rows from the CTE where either of the following conditions is met:
-     - Keep only one pair if `custom1 = custom3` and `custom2 = custom4`.
-     - Keep both pairs if `custom1 != custom3` OR `custom2 != custom4`.
-     - Keep rows without pairs in the same year.
+   - Select rows from the CTE based on the given conditions to remove redundant pairs and keep rows without pairs in the same year.
 
 3. **Ordering Results:**
-   - Order the results by `brand1`, `brand2`, and `year`.
+   - Order the results by `brand1`, `brand2`, and `year` for consistent presentation.
+---  
+### Solution
+```SQL
+-- Remove Redundant Pairs in SQL Server
+WITH cte AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY CASE WHEN brand1 < brand2 THEN CONCAT(brand1, brand2, year)
+                                                ELSE CONCAT(brand2, brand1, year)
+                                           END ORDER BY (SELECT NULL)) AS rn
+    FROM brands
+)
+SELECT brand1, brand2, year, custom1, custom2, custom3, custom4
+FROM cte
+WHERE rn = 1 OR (custom1 <> custom3 AND custom2 <> custom4);
 
+```
+---
 ### SQL Query Explanation:
-
 
 #### **Step 1: Create CTE with Row Numbers**
 
 ```sql
-WITH CTE AS (
-    SELECT 
-        *,
-        ROW_NUMBER() OVER(PARTITION BY brand1, brand2, year ORDER BY brand1) AS rn1,
-        ROW_NUMBER() OVER(PARTITION BY brand1, brand2, year ORDER BY brand2) AS rn2
-    FROM 
-        brands
+WITH cte AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY CASE WHEN brand1 < brand2 THEN CONCAT(brand1, brand2, year)
+                                                ELSE CONCAT(brand2, brand1, year)
+                                           END ORDER BY (SELECT NULL)) AS rn
+    FROM brands
 )
 ```
 
 In this step:
-- A Common Table Expression (CTE) named `CTE` is created.
-- `ROW_NUMBER()` function is used to assign row numbers within each partition defined by `brand1`, `brand2`, and `year`.
-- Two row number columns `rn1` and `rn2` are generated, one for each brand.
+- A Common Table Expression (CTE) named `cte` is created.
+- `ROW_NUMBER()` function assigns row numbers within each partition defined by `brand1`, `brand2`, and `year`.
+- The `CASE` statement constructs a unique identifier `pair_id` for each pair of brands and year.
 
 #### **Step 2: Selecting Rows**
 
 ```sql
-SELECT 
-    brand1,
-    brand2,
-    year,
-    custom1,
-    custom2,
-    custom3,
-    custom4
-FROM 
-    CTE
-WHERE 
-    (rn1 = 1 AND rn2 = 1)  -- Keep only one pair if custom1 = custom3 and custom2 = custom4
-    OR (rn1 > 1 AND rn2 > 1) -- Keep both pairs if custom1 != custom3 OR custom2 != custom4
-    OR (rn1 = 1 AND rn2 > 1) -- Keep rows without pairs in the same year
+SELECT brand1, brand2, year, custom1, custom2, custom3, custom4
+FROM cte
+WHERE rn = 1 OR (custom1 <> custom3 AND custom2 <> custom4);
 ```
 
 In this step:
-- Selects rows from the CTE where the conditions are met according to the problem statement.
-- Keeps only one pair if `custom1 = custom3` and `custom2 = custom4`.
-- Keeps both pairs if `custom1 != custom3` OR `custom2 != custom4`.
-- Keeps rows without pairs in the same year.
+- Selects rows from the CTE where the row number is 1 within each partition or where the condition for non-redundant pairs is met.
 
 #### **Step 3: Ordering Results**
 
 ```sql
-ORDER BY 
-    brand1, brand2, year;
+ORDER BY brand1, brand2, year;
 ```
 
 In this step:
-- Orders the result set by `brand1`, `brand2`, and `year` to ensure consistent ordering.
-
-
-
+- Orders the result set by `brand1`, `brand2`, and `year` for consistent presentation.
+---
 ### Result Table
 | brand1   | brand2   | year | custom1 | custom2 | custom3 | custom4 |
 |----------|----------|------|---------|---------|---------|---------|
@@ -106,9 +100,9 @@ In this step:
 | oneplus  | nothing  | 2020 | 5       | 9       | 6       | 3       |
 | apple    | samsung  | 2021 | 1       | 2       | 5       | 3       |
 | samsung  | apple    | 2021 | 5       | 3       | 1       | 2       |
-
+---
 ### Conclusion
-The query efficiently removes redundant pairs from the brands table based on the specified conditions, resulting in a clean and concise output.
+The SQL query efficiently removes redundant pairs from the brands table based on the specified conditions, resulting in a clean and concise output.
 
 
 
