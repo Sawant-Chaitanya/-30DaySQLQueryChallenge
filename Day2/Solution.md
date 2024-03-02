@@ -1,5 +1,5 @@
 
-## Problem Statement:
+## [Problem Statement:](https://youtu.be/rM1BVoBke04?si=b2ulqueTHrF0sT3M)
 
 A ski resort company is planning to construct a new ski slope using a pre-existing network of mountain huts and trails between them. A new slope has to begin at one of the mountain huts, have a middle station at another hut connected with the first one by a direct trail, and end at the third mountain hut which is also connected by a direct trail to the second hut. The altitude of the three huts chosen for constructing the ski slope has to be strictly decreasing.
 
