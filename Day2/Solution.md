@@ -1,6 +1,75 @@
-## Solution
 
-```SQL
+## Problem Statement:
+
+A ski resort company is planning to construct a new ski slope using a pre-existing network of mountain huts and trails between them. A new slope has to begin at one of the mountain huts, have a middle station at another hut connected with the first one by a direct trail, and end at the third mountain hut which is also connected by a direct trail to the second hut. The altitude of the three huts chosen for constructing the ski slope has to be strictly decreasing.
+
+You are given two SQL tables, `mountain_huts` and `trails`, with the following structure:
+
+```sql
+CREATE TABLE mountain_huts (
+    id INTEGER NOT NULL,
+    name VARCHAR(40) NOT NULL,
+    altitude INTEGER NOT NULL,
+    UNIQUE(name),
+    UNIQUE(id)
+);
+
+CREATE TABLE trails (
+    hut1 INTEGER NOT NULL,
+    hut2 INTEGER NOT NULL
+);
+
+INSERT INTO mountain_huts VALUES (1, 'Dakonat', 1900);
+INSERT INTO mountain_huts VALUES (2, 'Natisa', 2100);
+INSERT INTO mountain_huts VALUES (3, 'Gajantut', 1600);
+INSERT INTO mountain_huts VALUES (4, 'Rifat', 782);
+INSERT INTO mountain_huts VALUES (5, 'Tupur', 1370);
+
+INSERT INTO trails VALUES (1, 3);
+INSERT INTO trails VALUES (3, 2);
+INSERT INTO trails VALUES (3, 5);
+INSERT INTO trails VALUES (4, 5);
+INSERT INTO trails VALUES (1, 5);
+```
+
+### mountain_huts table
+
+| Id | Name     | Altitude |
+|----|----------|----------|
+| 1  | Dakonat  | 1900     |
+| 2  | Natisa   | 2100     |
+| 3  | Gajantut | 1600     |
+| 4  | Rifat    | 782      |
+| 5  | Tupur    | 1370     |
+
+
+### trails Table:
+
+| Hut1 | Hut2 |
+|------|------|
+| 1    | 3    |
+| 3    | 2    |
+| 3    | 5    |
+| 4    | 5    |
+| 1    | 5    |
+
+
+Each entry in the table `trails` represents a direct connection between huts with IDs `hut1` and `hut2`. Note that all trails are bidirectional.
+
+### Expected Output:
+
+
+| startpt  | middlept | endpt |
+|----------|----------|-------|
+| Dakonat  | Gajantut | Tupur |
+| Dakonat  | Tupur    | Rifat |
+| Gajantut | Tupur    | Rifat |
+| Natisa   | Gajantut | Tupur |
+
+
+## Solution:
+
+```sql
 -- CTE to select start and end huts along with their names and altitudes
 with cte_trails1 as (
     select t1.hut1 as start_hut, h1.name as start_hut_name
@@ -30,12 +99,32 @@ select c1.start_hut_name as startpt
 from cte_final c1
 join cte_final c2 on c1.end_hut = c2.start_hut;
 ```
----
-## Result Table
 
+## Approach:
+
+We solve this problem using Common Table Expressions (CTEs). The approach involves:
+
+1. **Creating CTEs for trails**: We first create a CTE (`cte_trails1`) to join the mountain huts with their connected trails. Then, another CTE (`cte_trails2`) is created to calculate the altitude difference between huts.
+   
+2. **Final CTE for filtering**: We create a final CTE (`cte_final`) to filter out the valid triplets based on altitude conditions.
+
+3. **Joining and selecting**: Finally, we join the final CTE with itself to get all possible triplets and select the required columns.
+
+## Step-by-Step Explanation:
+
+
+
+## Result Table:
+
+```
 | startpt  | middlept | endpt |
 |----------|----------|-------|
 | Dakonat  | Gajantut | Tupur |
 | Dakonat  | Tupur    | Rifat |
 | Gajantut | Tupur    | Rifat |
 | Natisa   | Gajantut | Tupur |
+```
+
+## Conclusion:
+
+The SQL query efficiently finds all valid triplets of mountain huts that can be used to construct the ski slope, satisfying the given conditions of altitude decrease along the slope.
