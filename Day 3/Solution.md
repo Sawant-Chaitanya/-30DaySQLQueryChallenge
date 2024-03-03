@@ -160,21 +160,6 @@ ORDER BY
 
 #### Explanation:
 
-##### Selecting Last Non-Null Values for Each Column
-
-```sql
-SELECT TOP 1
-    car,
-    COALESCE((SELECT TOP 1 length FROM FOOTER WHERE length IS NOT NULL ORDER BY id DESC), (SELECT TOP 1 length FROM FOOTER ORDER BY id DESC)) AS last_length,
-    COALESCE((SELECT TOP 1 width FROM FOOTER WHERE width IS NOT NULL ORDER BY id DESC), (SELECT TOP 1 width FROM FOOTER ORDER BY id DESC)) AS last_width,
-    COALESCE((SELECT TOP 1 height FROM FOOTER WHERE height IS NOT NULL ORDER BY id DESC), (SELECT TOP 1 height FROM FOOTER ORDER BY id DESC)) AS last_height
-FROM 
-    FOOTER
-WHERE 
-    (length IS NOT NULL OR width IS NOT NULL OR height IS NOT NULL)
-ORDER BY 
-    id DESC;
-```
 
 In this solution, subqueries are used to select the last non-null value for each column. Let's break down how `COALESCE` is working:
 
@@ -205,8 +190,14 @@ The same logic applies to `last_width` and `last_height` columns.
 
 
 ---
-### Conclusion:
+## Conclusion:
+
 
 Solution 1 uses Common Table Expressions (CTEs) to calculate segments based on non-null values for each column and then selects the last non-null value for each column. Solution 2 directly selects the last non-null values for each column using subqueries. Solution 3 and Solution 4 also utilize subqueries to select the last non-null values, with Solution 4 using the `COALESCE` function to handle null values.
 
-Among the provided solutions, Solution 1 appears to be the most flexible and readable, as it uses CTEs and window functions. It provides a clear understanding of the logic used to obtain the desired output. Therefore, Solution 1 is considered the better option.
+Among the provided solutions, Solution 1 stands out as the best choice for several reasons:
+
+- It uses window functions efficiently, resulting in better performance on larger datasets.
+- The logic is clear once understood, providing a balance between readability and complexity.
+- It's adaptable to changes in requirements or dataset structure due to the use of window functions and CTEs.
+Therefore, Solution 1 is considered the better option.
