@@ -69,22 +69,87 @@ select * from Day_Indicator;
 ---
 ## Here is a solution in the MS SQL server
 ```SQL
+-- Create a common table expression (CTE) SplitDayIndicator to calculate the day of the week and split the day indicator string
 WITH SplitDayIndicator AS (
     SELECT 
         Product_ID,
         Dates,
         Day_Indicator,
+        -- Calculate the day of the week using the DATEPART function, adding 5 and taking the modulo 7 to get the correct index
         ((DATEPART(dw, Dates) + 5) % 7 + 1) AS day_of_week
     FROM 
         Day_Indicator
-), SplitDay AS (
+),
+-- Create another CTE SplitDay to split the day indicator string into individual characters based on the day of the week
+SplitDay AS (
     SELECT 
         Product_ID,
         Dates,
+        Day_Indicator,
+        -- Use the SUBSTRING function to extract the indicator for the corresponding day of the week
         SUBSTRING(Day_Indicator, day_of_week, 1) AS Indicator
     FROM 
         SplitDayIndicator
 )
+-- Finally, select the desired columns from the SplitDay CTE where the indicator is '1'
+SELECT 
+    Product_ID,
+    Day_Indicator,
+    Dates
+FROM 
+    SplitDay
+WHERE 
+    Indicator = '1';
+
+```
+---
+## Explanation
+
+
+
+
+### Step 1: Calculate Day of the Week and Split Day Indicator
+
+```sql
+-- Create a common table expression (CTE) SplitDayIndicator to calculate the day of the week and split the day indicator string
+WITH SplitDayIndicator AS (
+    SELECT 
+        Product_ID,
+        Dates,
+        Day_Indicator,
+        -- Calculate the day of the week using the DATEPART function, adding 5 and taking the modulo 7 to get the correct index
+        ((DATEPART(dw, Dates) + 5) % 7 + 1) AS day_of_week
+    FROM 
+        Day_Indicator
+)
+```
+
+Explanation:
+- This CTE calculates the day of the week for each date in the input table using the `DATEPART` function. It adds 5 to the result and takes the modulo 7 to adjust the index to start from Monday (1) instead of Sunday (0).
+
+### Step 2: Split Day Indicator String
+
+```sql
+-- Create another CTE SplitDay to split the day indicator string into individual characters based on the day of the week
+SplitDay AS (
+    SELECT 
+        Product_ID,
+        Dates,
+        Day_Indicator,
+        -- Use the SUBSTRING function to extract the indicator for the corresponding day of the week
+        SUBSTRING(Day_Indicator, day_of_week, 1) AS Indicator
+    FROM 
+        SplitDayIndicator
+)
+```
+
+Explanation:
+- This CTE uses the `SUBSTRING` function to split the `Day_Indicator` string into individual characters based on the calculated `day_of_week` index obtained from the previous step.
+
+### Step 3: Filter Rows with Indicator '1'
+
+```sql
+-- Finally, select the desired columns from the SplitDay CTE where the indicator is '1'
 SELECT 
     Product_ID,
     Day_Indicator,
@@ -94,3 +159,12 @@ FROM
 WHERE 
     Indicator = '1';
 ```
+
+Explanation:
+- This final query selects the `Product_ID`, `Day_Indicator`, and `Dates` columns from the `SplitDay` CTE.
+- It filters the rows where the `Indicator` column is equal to '1', indicating that the corresponding day of the week has a value of 1 in the day indicator string.
+
+---
+
+This query effectively filters the dates column to showcase only those days where the `Day_Indicator` character for that day of the week is 1.
+
