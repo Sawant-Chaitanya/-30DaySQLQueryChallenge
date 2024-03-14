@@ -33,4 +33,19 @@ This SQL query retrieves data from the `job_skills` table while handling cases w
 
 4. **Result**:
    - The final result contains `row_id`, `job_role` (possibly filled with the previous non-null value), and `skills` for each row in the `job_skills` table.
+  
+   ---
+
+## Alternate Solution
+
+```SQL
+with cte as 
+	(select *
+	, sum(case when job_role is null then 0 else 1 end) over(order by row_id) as segment
+	from job_skills)
+select row_id
+, first_value(job_role) over(partition by segment order by row_id) as job_role
+, skills
+from cte;
+```
 
