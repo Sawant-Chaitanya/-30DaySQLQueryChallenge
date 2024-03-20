@@ -46,3 +46,33 @@ ORDER BY
    - Order the results alphabetically by `Friend1` and then `Friend2`.
 
 By following these steps, the query produces a result set containing the number of mutual friends for each pair of friends in the `Friends` table.
+
+
+here is example
+Let's take the sample friend "Jason" from the given table and explain how the query works step by step:
+
+### Sample Friend: "Jason"
+
+1. **Initialization**:
+   - We select data from the `Friends` table, aliased as `f1`.
+
+2. **Joining the Table with Itself**:
+   - We join the `Friends` table (`f1`) with itself (`f2`) to find mutual friends.
+   - For the sample friend "Jason":
+     - We find other pairs where "Jason" is involved.
+     - This includes pairs like ('Jason', 'Mary'), ('Jason', 'Mike'), and ('Susan', 'Jason').
+     - We're looking for connections where "Jason" is either the first friend (`Friend1`) or the second friend (`Friend2`) in the pairs.
+
+3. **Counting Mutual Friends**:
+   - We count the occurrences of `Friend1` in `f2`, as it represents mutual friends.
+   - For "Jason", this count includes mutual friends from pairs like ('Jason', 'Mary'), ('Mike', 'Jason'), and ('Susan', 'Jason').
+   - These counts will give us the number of mutual friends "Jason" has with each of his friends.
+
+4. **Grouping and Ordering**:
+   - We group the results by the pairs of friends (`Friend1` and `Friend2`).
+   - In our case, we're grouping by "Jason" and his friends.
+   - The results will be ordered alphabetically by `Friend1` and then `Friend2`.
+
+### Conclusion:
+
+By following these steps for the sample friend "Jason", the query will provide a result set showing the number of mutual friends "Jason" has with each of his friends. This explanation demonstrates how the query operates for a single friend, but it repeats this process for each friend in the `Friends` table, providing the overall count of mutual friends for each pair of friends.
