@@ -33,7 +33,6 @@ CumulativeCases AS (
 -- Main query to calculate percentage increase in cases each month versus cumulative cases as of the prior month
 SELECT 
     c.MonthNumber,
-    c.Year,
     -- Calculate percentage increase and round to one decimal place
     ROUND(((c.TotalCases * 100.0) / NULLIF(c.CumulativeCases - c.TotalCases, 0)), 1) AS PercentageIncrease
 FROM 
@@ -58,7 +57,7 @@ ORDER BY
    - `NULLIF()` is used to handle division by zero cases.
 
 4. **Output**:
-   - Returns the month number, year, and percentage increase rounded to one decimal place.
+   - Returns the month number, and percentage increase rounded to one decimal place.
    - The result set is ordered by year and month number.
 
 This query calculates the percentage increase in COVID cases each month compared to the cumulative cases as of the prior month. It's organized using Common Table Expressions (CTEs) to break down the calculation steps into manageable parts.
